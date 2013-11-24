@@ -1,1 +1,1 @@
-获取当前连接wifi的SSID(wifi名称)，BSSID(路由mac地址)，判断是否连接wifi
+获取当前连接wifi的SSID(wifi名称)，BSSID(无线mac地址)，判断是否连接wifi
