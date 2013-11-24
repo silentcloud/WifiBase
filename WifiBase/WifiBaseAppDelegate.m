@@ -7,6 +7,7 @@
 //
 
 #import "WifiBaseAppDelegate.h"
+#import "MainViewController.h"
 
 @implementation WifiBaseAppDelegate
 
@@ -14,6 +15,8 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
+    MainViewController *mainView = [[MainViewController alloc]init];
+    [self.window addSubview:mainView.view];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
