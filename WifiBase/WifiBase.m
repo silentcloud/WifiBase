@@ -53,37 +53,58 @@
 {
     NSDictionary *ifs = [self fetchSSIDInfo];
     NSString *bssid = [[ifs objectForKey:@"BSSID"] uppercaseString];
-    //第一位为0的时候会被省略掉
-    //封装第一位为0的情况
-    NSArray *array=[bssid componentsSeparatedByString:@":"];
-    NSMutableArray *tempArray = [[NSMutableArray alloc]init];
-    for(int i = 0; i < [array count]; i++){
-        if([array[i] length]== 1){
-            [tempArray addObject:[@"0" stringByAppendingString:[NSString stringWithFormat:@"%@", [array objectAtIndex:i]]]];
-            
-        }else{
-            [tempArray addObject:[NSString stringWithFormat:@"%@", [array objectAtIndex:i]]];
+    NSString *bssidValue;
+    if([bssid isEqualToString:@"UNSUPPORTED"]){
+        NSLog(@"Simulator doesn't detect wifi, please connect your iPhone!");
+        bssidValue = @"";
+    }else{
+        //第一位为0的时候会被省略掉
+        //封装第一位为0的情况
+        NSArray *array=[bssid componentsSeparatedByString:@":"];
+        NSMutableArray *tempArray = [[NSMutableArray alloc]init];
+        for(int i = 0; i < [array count]; i++){
+            if([array[i] length]== 1){
+                [tempArray addObject:[@"0" stringByAppendingString:[NSString stringWithFormat:@"%@", [array objectAtIndex:i]]]];
+                
+            }else{
+                [tempArray addObject:[NSString stringWithFormat:@"%@", [array objectAtIndex:i]]];
+            }
         }
+        bssidValue = [tempArray componentsJoinedByString:@":"];
     }
-    return [tempArray componentsJoinedByString:@":"];
+    return bssidValue;
 }
 
 - (NSString *)getSSID
 {
     NSDictionary *ifs = [self fetchSSIDInfo];
     NSString *ssid = [ifs objectForKey:@"SSID"];
-    return ssid;
+    NSString *ssidValue;
+    if([[ssid uppercaseString] isEqualToString:@"UNSUPPORTED"]){
+        NSLog(@"Simulator doesn't detect wifi, please connect your iPhone!");
+        ssidValue = @"";
+    }else{
+        ssidValue = ssid;
+    }
+    
+    return ssidValue;
 }
 
 - (id)fetchSSIDInfo
 {    
     NSArray *ifs = (__bridge id)CNCopySupportedInterfaces();
     NSLog(@"Supported interfaces: %@", ifs);
-    id info = nil;
-    for (NSString *ifnam in ifs) {
-        info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
-        NSLog(@"%@ => %@", ifnam, info);
-        if (info && [info count]) { break; }
+    NSDictionary *info;
+    if (!ifs) {
+        info = [NSDictionary dictionaryWithObjectsAndKeys:
+                    @"UNSUPPORTED", @"SSID",
+                    @"UNSUPPORTED", @"BSSID", nil];
+    } else{
+        for (NSString *ifnam in ifs) {
+            info = (__bridge_transfer id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
+            NSLog(@"%@ => %@", ifnam, info);
+            if (info && [info count]) { break; }
+        }
     }
     return info;
 }
